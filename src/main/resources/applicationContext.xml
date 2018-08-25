@@ -1,0 +1,108 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	   xmlns:context="http://www.springframework.org/schema/context"
+	   xmlns:tx="http://www.springframework.org/schema/tx" xmlns:aop="http://www.springframework.org/schema/aop"
+	   xsi:schemaLocation="http://www.springframework.org/schema/beans
+	http://www.springframework.org/schema/beans/spring-beans.xsd
+	http://www.springframework.org/schema/context
+	http://www.springframework.org/schema/context/spring-context.xsd
+	http://www.springframework.org/schema/tx
+	http://www.springframework.org/schema/tx/spring-tx.xsd http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop.xsd">
+    
+   <!--1, 开启扫描扫描托管类的开关 -->
+   <context:component-scan base-package="service"></context:component-scan>
+   
+
+   <!--2, 加载property文件的开关 -->
+   <context:property-placeholder location="classpath:druid.properties"/>
+   
+   
+   
+   <!--3, 配置druid数据源 -->
+   <bean id="dataSource" class="com.alibaba.druid.pool.DruidDataSource">
+   		<property name="driverClassName" value="${jdbc.driver}"></property>
+   		<property name="url" value="${jdbc.url}"></property>
+   		<property name="username" value="${jdbc.user}"></property>
+   		<property  name="password" value="${jdbc.password}"></property>
+   </bean>
+   
+   
+   
+   <!--4, 配置mybatis的SessionFactory工厂,需要托管给spring来创建 -->
+   <bean id="sessionFactory" class="org.mybatis.spring.SqlSessionFactoryBean">
+   		<property name="dataSource" ref="dataSource"></property>
+   		<!-- 引入mybatis的配置文件 -->
+   		<property name="configLocation" value="classpath:mybatis.xml"></property>
+   </bean>
+   
+   
+   
+   <!--5, 把mapper接口交给spring创建 -->
+   <bean class="org.mybatis.spring.mapper.MapperScannerConfigurer" >
+   		<!-- 扫描mapper包下的所有接口 -->
+   		<property name="basePackage" value="mapper"></property>
+   		<!--  -->
+   		<property name="SqlSessionFactoryBeanName" value="sessionFactory"></property>
+   </bean>
+   
+   
+   
+   <!--6, 配置jdbc事务管理器 -->
+   <bean id="txManager" class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+   		<property name="dataSource" ref="dataSource"></property>
+   </bean>
+   
+   
+   
+   <!-- 开启注解方式的事务,注:当proxy-target-class="false",当值为false表示使用jdk的代理方式,
+   		来执行切面编程,加入事务,此时service层要实现接口要不然会报错,true表示用ciglib的的代理方式 -->
+   <tx:annotation-driven transaction-manager="txManager"/>
+   
+   
+</beans>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+
+<mapper namespace="mapper.ISystemLogMapper">
+
+    <sql id="baseSql">
+		logId,logContent,ip,browser,logTime
+	</sql>
+
+    <resultMap id="baseResultMap" type="SystemLog">
+        <id column="logId" property="logId"></id>
+        <result column="logContent" property="logContent"></result>
+        <result column="ip" property="ip"></result>
+        <result column="browser" property="browser"></result>
+        <result column="logTime" property="logTime"></result>
+    </resultMap>
+
+
+
+    <insert id="insert" parameterType="SystemLog">
+        INSERT INTO system_log (logContent,ip,browser,logTime) VALUES(#{logContent},#{ip},#{browser},#{logTime})
+    </insert>
+
+
+
+    <select id="selectByPage" parameterType="SystemLog" resultMap="baseResultMap">
+        SELECT
+          <include refid="baseSql"/>
+        FROM system_log
+        <where>
+            <if test="logTime!=null and logTime!='' and endTime!=null and endTime!=''">
+                logTime BETWEEN logTime AND endTime
+            </if>
+        </where>
+        LIMIT #{page.startIndex},#{page.pageSize}
+    </select>
+
+    <select id="selectCount" resultType="int">
+        SELECT COUNT(*) FROM system_log
+        <where>
+            <if test="logTime!=null and logTime!='' and endTime!=null and endTime!=''">
+                logTime BETWEEN logTime AND endTime
+            </if>
+        </where>
+    </select>
+</mapper>

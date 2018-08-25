@@ -1,0 +1,160 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+
+<mapper namespace="mapper.IBookMapper">
+
+    <sql id="baseSql">
+		bid,bname,author,category,status,pagecount,book.pid AS pid2,publisher.pid,pname,paddress,pphone
+	</sql>
+
+    <resultMap id="baseResultMap" type="Book">
+        <id column="bid" property="bid"/>
+        <result column="bname" property="bname"/>
+        <result column="author" property="author"/>
+        <result column="category" property="category"/>
+        <result column="pagecount" property="pagecount"/>
+        <result column="pid2" property="pid"/>
+        <result column="status" property="status"></result>
+        <association property="publisher" javaType="Publisher">
+            <id column="pid" property="pid"/>
+            <result column="pname" property="pname"/>
+            <result column="paddress" property="paddress"/>
+            <result column="pphone" property="pphone"/>
+        </association>
+    </resultMap>
+
+
+    <!--添加图书-->
+    <insert id="insert" parameterType="Book">
+        INSERT INTO book (bname,author,category,pagecount,pid) VALUES (#{bname},#{author},#{category},#{pagecount},#{pid})
+    </insert>
+
+
+    <!--删除图书-->
+    <delete id="delete" parameterType="Book">
+          DELETE FROM book WHERE bid=#{bid}
+    </delete>
+
+
+    <!--批量删除-->
+    <select id="batchDelete">
+         DELETE FROM book WHERE bid IN
+         <foreach collection="array" item="bids" open="(" close=")" separator=",">
+              #{bids}
+         </foreach>
+    </select>
+
+
+    <!--修改图书-->
+    <update id="update" parameterType="Book">
+        UPDATE book
+        <set>
+            <if test="bname!=null and bname!=''">
+                bname = #{bname},
+            </if>
+            <if test="author!=null and author!=''">
+                author = #{author},
+            </if>
+            <if test="category!=null and category!=''">
+                category = #{category},
+            </if>
+            <if test="pagecount!=null">
+                pagecount = #{pagecount},
+            </if>
+            <if test="status!=null">
+                status = #{status},
+            </if>
+            <if test="pid!=null">
+                pid = #{pid},
+            </if>
+        </set>
+        WHERE bid = #{bid}
+    </update>
+
+
+
+    <!--根据id查询图书-->
+    <select id="selectById" parameterType="Book" resultMap="baseResultMap">
+        SELECT
+        <include refid="baseSql"/>
+        FROM book LEFT JOIN publisher ON book.pid=publisher.pid WHERE bid = #{bid}
+    </select>
+
+
+    <!--根据名称查询图书-->
+    <select id="selectByName" parameterType="Book" resultMap="baseResultMap">
+        SELECT
+        <include refid="baseSql"/>
+        FROM book LEFT JOIN publisher ON book.pid=publisher.pid WHERE bname = #{bname}
+    </select>
+
+
+    <!--查询所有-->
+    <select id="selectAll" resultMap="baseResultMap">
+        SELECT
+        <include refid="baseSql"/>
+        FROM book LEFT JOIN publisher ON publisher.pid=book.pid
+    </select>
+
+
+    <!--查询数据库总量-->
+    <select id="selectCount" resultType="int">
+        SELECT COUNT(*) FROM book
+    </select>
+
+
+    <!--分页查询-->
+    <select id="selectByPage" parameterType="Page" resultMap="baseResultMap">
+        SELECT
+        <include refid="baseSql"/>
+        FROM book LEFT JOIN publisher ON publisher.pid=book.pid LIMIT #{startIndex} , #{pageSize}
+    </select>
+
+
+
+    <!--组合查询-->
+    <select id="selectByCon" parameterType="Book"  resultMap="baseResultMap">
+        SELECT
+        <include refid="baseSql"/>
+        FROM book LEFT JOIN publisher ON book.pid=publisher.pid
+        <where>
+            <if test="bname!=null and bname!=''">
+                bname  LIKE "%"#{bname}"%"
+            </if>
+            <if test="author!=null and author!=''">
+                AND author  LIKE "%"#{author}"%"
+            </if>
+            <if test="category!=null and category!=''">
+                AND category  LIKE "%"#{category}"%"
+            </if>
+            <if test="status!=null and status!=-1">
+                AND status = #{status}
+            </if>
+        </where>
+        LIMIT #{page.startIndex},#{page.pageSize}
+    </select>
+
+
+    <!--组合查询数据库总量-->
+    <select id="selectCountByCon" parameterType="Book" resultType="int">
+        SELECT COUNT(*) FROM book LEFT JOIN publisher ON book.pid=publisher.pid
+        <where>
+            <if test="bname!=null and bname!=''">
+                bname  LIKE "%"#{bname}"%"
+            </if>
+            <if test="author!=null and author!=''">
+                AND author  LIKE "%"#{author}"%"
+            </if>
+            <if test="category!=null and category!=''">
+                AND category  LIKE "%"#{category}"%"
+            </if>
+            <if test="status!=null and status!=-1">
+                AND status = #{status}
+            </if>
+        </where>
+    </select>
+
+</mapper>

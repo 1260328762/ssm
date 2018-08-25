@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+
+<mapper namespace="mapper.IPublisherMapper">
+
+    <sql id="baseSql">
+		pid,pname,paddress,pphone
+	</sql>
+
+    <resultMap id="baseResultMap" type="Publisher">
+        <id column="pid" property="pid"/>
+        <result column="pname" property="pname"/>
+        <result column="paddress" property="paddress"/>
+        <result column="pphone" property="pphone"/>
+    </resultMap>
+
+
+    <!--添加出版社-->
+    <insert id="insert" parameterType="Publisher">
+        INSERT INTO publisher (pname,paddress,pphone) VALUES (#{pname},#{paddress},#{pphone})
+    </insert>
+
+
+    <!--删除出版社-->
+    <delete id="delete" parameterType="Publisher">
+          DELETE FROM publisher WHERE pid=#{pid}
+    </delete>
+
+
+    <!--修改出版社-->
+    <update id="update" parameterType="Publisher">
+        UPDATE publisher
+        <set>
+            <if test="pname!=null and pname!=''">
+                pname = #{pname}
+            </if>
+            <if test="paddress!=null and paddress!=''">
+                paddress = #{paddress}
+            </if>
+            <if test="pphone!=null and pphone!=''">
+                pphone = #{pphone}
+            </if>
+        </set>
+        WHERE pid = #{pid}
+    </update>
+
+
+
+    <!--查询所有-->
+    <select id="selectAll" resultMap="baseResultMap">
+        SELECT
+        <include refid="baseSql"/>
+        FROM publisher
+    </select>
+
+
+
+</mapper>
